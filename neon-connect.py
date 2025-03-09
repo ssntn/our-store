@@ -7,8 +7,6 @@ load_dotenv("neon.env")
 
 # Get the connection string from the environment variable
 connection_string = os.getenv('DATABASE_URL')
-print(connection_string)
-
 
 # Create a connection pool
 connection_pool = pool.SimpleConnectionPool(
