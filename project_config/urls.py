@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import check_neon_connection
+from api.views import check_neon_connection, home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("check-neon/", check_neon_connection, name="check-neon"),
+    path("", home, name="home"),
 ]
