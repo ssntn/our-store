@@ -11,32 +11,20 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
-# Add these at the top of your settings.py
 import os
 from dotenv import load_dotenv
 from urllib.parse import urlparse
-
-load_dotenv("../neon.env")
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('PGDATABASE'),
-        'USER': os.getenv('PGUSER'),
-        'PASSWORD': os.getenv('PGPASSWORD'),
-        'HOST': os.getenv('PGHOST'),
-        'PORT': os.getenv('PGPORT', '5432'),
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
-        'DISABLE_SERVER_SIDE_CURSORS': True,
-        'CONN_MAX_AGE': 0
-    }
-}
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / "neon.env")
+
+# Configure the default database using DATABASE_URL
+DATABASES = {
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+}
 
 
 # Quick-start development settings - unsuitable for production
@@ -77,6 +65,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'project_config.urls'
+APPEND_SLASH = True
 
 TEMPLATES = [
     {
