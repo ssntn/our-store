@@ -22,12 +22,12 @@ from api.views.products import product
 
 urlpatterns = [
     # Management
-    path('admin', admin.site.urls),
-    path('health-check/neon', check_neon_connection, name='health_check_neon'),
-    path('health-check', home, name='health_check'),
+    path('admin/', admin.site.urls),
+    path('health-check/neon/', check_neon_connection, name='health_check_neon'),
+    path('health-check/', home, name='health_check'),
     path('', home, name='home'),
 
     # Products
     # path('products/<int:id>', product)
-    path('products', product)
+    path('products/', product)
 ]
