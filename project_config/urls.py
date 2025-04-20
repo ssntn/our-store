@@ -16,12 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.home import home
+from api.views.home import home
 from api.views.management import check_neon_connection
+from api.views.products import product
 
 urlpatterns = [
+    # Management
     path('admin', admin.site.urls),
-    path("health-check-neon", check_neon_connection, name="health_check_neon"),
-    path("health", home, name="health_check"),
-    path("", home, name="home"),
+    path('health-check/neon', check_neon_connection, name='health_check_neon'),
+    path('health-check', home, name='health_check'),
+    path('', home, name='home'),
+
+    # Products
+    # path('products/<int:id>', product)
+    path('products', product)
 ]
