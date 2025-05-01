@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from api.views.home import home
 from api.views.management import check_neon_connection
-from api.views.products import product
+from api.views.products import get
 
 urlpatterns = [
     # Management
@@ -28,6 +28,6 @@ urlpatterns = [
     path('', home, name='home'),
 
     # Products
-    path('products/', product),
-    path('products/<int:id>', product)
+    path('products/', get, name='get_product'),
+    path('products/<int:id>', get, name='get_product_by_id')
 ]
