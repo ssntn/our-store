@@ -28,6 +28,6 @@ urlpatterns = [
     path('', home, name='home'),
 
     # Products
-    # path('products/<int:id>', product)
-    path('products/', product)
+    path('products/', product),
+    path('products/<int:id>', product)
 ]
