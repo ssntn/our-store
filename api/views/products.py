@@ -27,7 +27,7 @@ def handle_id(request, id):
   elif request.method == 'DELETE':
     return delete(id)
   elif request.method == 'PUT':
-    return update(request, id)
+    return update(request.data, id)
   return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
  
 def create(data):
@@ -67,7 +67,7 @@ def delete(id):
     product.is_deleted = True
     product.save()
     return Response({"detail": "Product deleted."}, status=status.HTTP_204_NO_CONTENT)
-  except product.DoesNotExist:
+  except p.DoesNotExist:
     return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
 def update(data, id):
