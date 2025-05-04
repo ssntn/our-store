@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from api.views.home import home
 from api.views.management import check_neon_connection
-from api.views.products import get
+# from api.views.products import product
+from api.views import products as p
 
 urlpatterns = [
     # Management
@@ -27,7 +28,10 @@ urlpatterns = [
     path('health-check/', home, name='health_check'),
     path('', home, name='home'),
 
-    # Products
-    path('products/', get, name='get_product'),
-    path('products/<int:id>', get, name='get_product_by_id')
+    #* Products
+    # Get
+    path('products/', p.handler, name='create_get_product'),
+    path('products/<int:id>', p.handle_id, name='get_udpate_delete'),
+    # path('products/update/<int:id>', p.update, name='update_product'),
+    
 ]

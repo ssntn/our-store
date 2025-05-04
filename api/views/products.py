@@ -8,68 +8,77 @@ from rest_framework import status
 
 from api.model.product import Product as p
 from ..serializers import ProductSerializer
-
-@api_view(['GET', 'POST', 'DELETE'])
-def get(request, id=None, page_size=None):
-  
-  # Non get methods
-  if request.method == 'POST':
-    return create(request)
-  elif request.method == 'DELETE':
-     return delete(id)
-
-  # Get
-  if id:
-    return get_by_id(id)
-  
-  page_size = request.GET.get('page_size')
-  if page_size:
-    page = int(request.GET.get('page', 1))
-    return get_paginated(int(page_size), int(page))
-  
-  return get_all()
+from ..utils import log_local as _log
  
-def create(request):
-    serializer = ProductSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+#* Handlers
+@api_view(['GET', 'POST'])
+def handler(request):
+  if request.method == 'GET':
+    _request = request.GET
+    return get(_request.get('page_size'), _request.get('page'))
+  elif request.method == 'POST':
+    return create(request.data)
+  return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)  
     
-    print(request.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['DELETE', 'PUT', 'GET'])
+def handle_id(request, id):
+  if request.method == 'GET':
+    return get_by_id(id)
+  elif request.method == 'DELETE':
+    return delete(id)
+  elif request.method == 'PUT':
+    return update(request, id)
+  return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+ 
+def create(data):
+  serializer = ProductSerializer(data=data)
+  if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+  
+  print(data)
+  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def get(page_size = None, page = None):
+    if page_size:
+        page_size = int(page_size)
+        page = int(page)
+        
+        start = (page - 1) * page_size
+        end = start + page_size
+        queryset = p.objects.filter(is_deleted=False)[start:end]
+    else:
+        queryset = p.objects.filter(is_deleted=False)
+
+    serializer = ProductSerializer(queryset, many=True)
+    return Response(serializer.data)
+
+def get_by_id(id):
+    try:
+        product = p.objects.get(pk=id, is_deleted=False) 
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
+    except p.DoesNotExist:
+        return Response({'detail': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 def delete(id):
+  try:
+    product = p.objects.get(pk=id, is_deleted=False)
+    product.is_deleted = True
+    product.save()
+    return Response({"detail": "Product deleted."}, status=status.HTTP_204_NO_CONTENT)
+  except product.DoesNotExist:
+    return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+
+def update(data, id):
     try:
         product = p.objects.get(pk=id, is_deleted=False)
-        product.is_deleted = True
-        product.save()
-        return Response({"detail": "Product deleted."}, status=status.HTTP_204_NO_CONTENT)
     except p.DoesNotExist:
-        return Response({"detail": "Product not found."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-
-#region PRIVATES
-def get_by_id(id):
-  product = get_object_or_404(p, pk=id)
-  serializer = ProductSerializer(product)
-  return Response(serializer.data)   
-
-def get_paginated(page_size, page):
-
-  start = (page - 1) * page_size
-  end = start + page_size
-
-  queryset = p.objects.filter(is_deleted=False)[start:end]
-  serializer = ProductSerializer(queryset, many=True)
-
-  return Response({
-      'page': page,
-      'page_size': page_size,
-      'results': serializer.data
-  })
-
-def get_all():
-  productList = p.objects.all()
-  serializer = ProductSerializer(productList, many=True)
-  return Response(serializer.data)
-#endregion 
+    serializer = ProductSerializer(product, data=data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+      
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
