@@ -20,6 +20,7 @@ from api.views.home import home
 from api.views.management import check_neon_connection
 # from api.views.products import product
 from api.views import products as p
+from api.views import files as f
 
 urlpatterns = [
     # Management
@@ -33,5 +34,8 @@ urlpatterns = [
     path('products/', p.handler, name='create_get_product'),
     path('products/<int:id>', p.handle_id, name='get_udpate_delete'),
     # path('products/update/<int:id>', p.update, name='update_product'),
+    
+    #* Cloudinary
+    path('files/', f.upload, name='upload_file')
     
 ]
