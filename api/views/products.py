@@ -1,7 +1,3 @@
-
-from dotenv import load_dotenv
-from django.shortcuts import get_object_or_404
-
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -9,6 +5,8 @@ from rest_framework import status
 from api.model.product import Product as p
 from ..serializers import ProductSerializer
 from ..utils import log_local as _log
+
+import cloudinary.uploader as uploader
  
 #* Handlers
 @api_view(['GET', 'POST'])
@@ -17,7 +15,7 @@ def handler(request):
     _request = request.GET
     return get(_request.get('page_size'), _request.get('page'))
   elif request.method == 'POST':
-    return create(request.data)
+    return create(request.data, request.FILES.get('img_upload', None))
   return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)  
     
 @api_view(['DELETE', 'PUT', 'GET'])
@@ -30,14 +28,29 @@ def handle_id(request, id):
     return update(request.data, id)
   return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
  
-def create(data):
-  serializer = ProductSerializer(data=data)
-  if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
+def create(data, image):
+  try:
+    
+    _log(image)
+    # This will only upload images if they have added one
+    # If they didn't upload, front-end will render default
+    if image:
+      upload_result = uploader.upload(image)
+      data = data.copy()
+      data["img_url"] = upload_result.get("secure_url")
+    
+    serializer = ProductSerializer(data=data)
+    
+    # Product model constraint checking
+    if not serializer.is_valid():
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Saves to database
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+  except Exception as e:
+    return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
   
-  print(data)
-  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def get(page_size = None, page = None):
     if page_size:
