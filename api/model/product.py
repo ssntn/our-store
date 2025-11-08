@@ -14,7 +14,7 @@ class Product(models.Model):
     
     #* UPDATE OPERATIONS
     updated_at = models.DateTimeField(null=True, blank=True)
-    updated_by = models.CharField(null=True, blank=True)
+    # updated_by = models.ForeignKey(User, null=True, blank=True)
     
     #* DELETE OPERATION
     is_deleted = models.BooleanField(default=False)
