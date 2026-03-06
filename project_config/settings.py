@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'api',
     'cloudinary',
     'cloudinary_storage',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +81,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Our Store API',
+    'DESCRIPTION': 'Prices pa lang kasi wala pa kong kayang gawin',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
 
 ROOT_URLCONF = 'project_config.urls'
 APPEND_SLASH = True

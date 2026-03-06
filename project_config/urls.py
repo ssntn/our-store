@@ -18,9 +18,9 @@ from django.contrib import admin
 from django.urls import path
 from api.views.home import home
 from api.views.management import check_neon_connection
-# from api.views.products import product
 from api.views import products as p
 from api.views import files as f
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     # Management
@@ -36,6 +36,10 @@ urlpatterns = [
     # path('products/update/<int:id>', p.update, name='update_product'),
     
     #* Cloudinary
-    path('files/', f.upload, name='upload_file')
+    path('files/', f.upload, name='upload_file'),
+    
+    # schema 
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui")
     
 ]
